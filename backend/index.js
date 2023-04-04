@@ -1,5 +1,6 @@
 var db = require('./sqlCredentials')
 
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt')
@@ -177,7 +178,12 @@ app.get('/api/seetimetable/:empId', (req, res) => {
 
 // Registartion section 
 app.post('/api/setUser', (req, res) => {
-    const username = req.body.username;
+
+    console.log(req.body)
+    const empId = req.body.username;
+
+    const name = req.body.name;
+
     const password = req.body.password;
     const role = req.body.role;
 
@@ -187,8 +193,8 @@ app.post('/api/setUser', (req, res) => {
 
 
 
-        const sqlRegister = "INSERT INTO loginPage (username,password,role) VALUES(?,?,?)";
-        db.query(sqlRegister, [username, hash, role], (err, result) => {
+        const sqlRegister = "INSERT INTO loginPage (name,empId,password,role) VALUES(?,?,?,?)";
+        db.query(sqlRegister, [name, empId, hash, role], (err, result) => {
             if (err)
                 console.log(err)
             else {
@@ -338,7 +344,7 @@ app.post("/api/arrangementRequestIntoTable", (req, res) => {
     const section = req.body.section;
     const reason = " this is comming from the backend side and it is default value";
 
-    // const query = `INSERT INTO proxy.ArrangementMainRequest
+    // const query = `INSERT INTO shiftmate.ArrangementMainRequest
     // (requestId,empId,otherEmpId,forDate,section,lecture,reason) VALUES(?, ?,?,CURDATE(),?,?,?)`;
 
     // db.query(query, [reqId, empId, otherEmpId, section, lecture, reason], (err, result) => {
@@ -355,19 +361,19 @@ app.post("/api/arrangementRequestIntoTable", (req, res) => {
     db.query(checkQuery, [reqId, empId, otherEmpId, section, lecture, reason], (err, result) => {
         if (err) {
             console.log(err);
-            res.send(err);
+            // res.send(err);
         } else {
             if (!(result.length > 0)) {
                 // Value do not exists in the table, do nothing
-                const insertQuery = `INSERT INTO proxy.ArrangementMainRequest
+                const insertQuery = `INSERT INTO shiftmate.ArrangementMainRequest
                 (requestId,empId,otherEmpId,forDate,section,lecture,reason) VALUES(?, ?,?,?,?,?,?)`;
                 db.query(insertQuery, [reqId, empId, otherEmpId, date, section, lecture, reason], (err, result) => {
                     if (err) {
                         console.log(err);
-                        res.send(err);
+                        // res.send(err);
                     } else {
                         console.log('Record inserted successfully');
-                        res.send('Record inserted successfully');
+                        // res.send('Record inserted successfully');
                     }
                 });
 
@@ -377,15 +383,15 @@ app.post("/api/arrangementRequestIntoTable", (req, res) => {
             //puting the request to the seconday table of arrangment Request table
             const thisRequestId = reqId + otherEmpId;
 
-            const query = `INSERT INTO proxy.ArrangementRequestSecondary
+            const query = `INSERT INTO shiftmate.ArrangementRequestSecondary
                 (id,requestId,empId) VALUES(?,?,?)`;
             db.query(query, [thisRequestId, reqId, empId,], (err, result) => {
                 if (err) {
                     console.log(err);
-                    res.send(err);
+                    // res.send(err);
                 } else {
                     console.log('Record inserted successfully');
-                    res.send('Record inserted successfully');
+                    // res.send('Record inserted successfully');
                 }
             });
 
@@ -402,4 +408,41 @@ app.post("/api/arrangementRequestIntoTable", (req, res) => {
 
     console.log(reqId + " " + empId + " " + otherEmpId + " " + date + " " + lecture + " " + date + " " + lecture + " " + section);
 
+})
+
+
+
+
+// getting all the request of available teachers
+
+app.post('/api/getfreeteacher', (req, res) => {
+
+    console.log("i was executed")
+
+    // const empId = req.params.empId;
+    // console.log("hello hello " + empId)
+
+    // const id = req.params.empId;
+    // const day = 'monday';
+    // const seeTimeTbl = "(select 'monday' as dday, nine, ten, eleven, twelve, one, two, three from monday where empId = ? union all select  'tuesday' as dday, nine, ten, eleven, twelve, one, two, three  from tuesday where empId = ? union all select  'wednesday' as dday, nine, ten, eleven, twelve, one, two, three  from wednesday where empId = ? union all select 'thursday' as dday, nine, ten, eleven, twelve, one, two, three  from thrusday where empId = ? union all select  'friday' as dday, nine, ten, eleven, twelve, one, two, three from friday where empId = ? union all select 'saturday' as dday, nine, ten, eleven, twelve, one, two, three from saturday where empId = ? )";
+    // db.query(seeTimeTbl, [id, id, id, id, id, id], (err, result) => {
+
+    //     if (err)
+    //         console.log(err);
+    //     else {
+    //         res.send(result);
+    //         console.log('yyy')
+    //     }
+    // });
+    // console.log(seeTimeTbl);
+    // console.log('h');
+
+    res.send([{
+        empID: 123,
+        name: "John Doe",
+        date: "2023-03-29",
+        reason: "Sick leave",
+        section: "4A",
+        lecture: 5,
+    }])
 })
