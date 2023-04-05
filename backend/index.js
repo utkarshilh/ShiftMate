@@ -343,22 +343,10 @@ app.post("/api/arrangementRequestIntoTable", (req, res) => {
 
     const section = req.body.section;
     const reason = " this is comming from the backend side and it is default value";
-
-    // const query = `INSERT INTO shiftmate.ArrangementMainRequest
-    // (requestId,empId,otherEmpId,forDate,section,lecture,reason) VALUES(?, ?,?,CURDATE(),?,?,?)`;
-
-    // db.query(query, [reqId, empId, otherEmpId, section, lecture, reason], (err, result) => {
-    //     if (err)
-    //         console.log(err);
-    //     else {
-    //         console.log(result);
-    //         res.send(result);
-    //     }
-    // })
-    const checkQuery = 'SELECT * FROM ArrangementMainRequest WHERE requestId = ? ';
+    const checkQuery = 'SELECT * FROM ShiftMate.ArrangementMainRequest WHERE requestId = ? ';
 
     // Check if the value already exists in the table
-    db.query(checkQuery, [reqId, empId, otherEmpId, section, lecture, reason], (err, result) => {
+    db.query(checkQuery, [reqId], (err, result) => {
         if (err) {
             console.log(err);
             // res.send(err);
@@ -366,8 +354,8 @@ app.post("/api/arrangementRequestIntoTable", (req, res) => {
             if (!(result.length > 0)) {
                 // Value do not exists in the table, do nothing
                 const insertQuery = `INSERT INTO shiftmate.ArrangementMainRequest
-                (requestId,empId,otherEmpId,forDate,section,lecture,reason) VALUES(?, ?,?,?,?,?,?)`;
-                db.query(insertQuery, [reqId, empId, otherEmpId, date, section, lecture, reason], (err, result) => {
+                (requestId,empId,forDate,section,lecture,reason) VALUES(?, ?,?,?,?,?)`;
+                db.query(insertQuery, [reqId, empId, date, section, lecture, reason], (err, result) => {
                     if (err) {
                         console.log(err);
                         // res.send(err);
@@ -383,9 +371,8 @@ app.post("/api/arrangementRequestIntoTable", (req, res) => {
             //puting the request to the seconday table of arrangment Request table
             const thisRequestId = reqId + otherEmpId;
 
-            const query = `INSERT INTO shiftmate.ArrangementRequestSecondary
-                (id,requestId,empId) VALUES(?,?,?)`;
-            db.query(query, [thisRequestId, reqId, empId,], (err, result) => {
+            const query = `INSERT INTO shiftmate.ArrangementRequestSecondary(id,requestId,empId,otherEmpId) VALUES(?,?,?,?)`;
+            db.query(query, [thisRequestId, reqId, empId, otherEmpId], (err, result) => {
                 if (err) {
                     console.log(err);
                     // res.send(err);
@@ -417,32 +404,39 @@ app.post("/api/arrangementRequestIntoTable", (req, res) => {
 
 app.post('/api/getfreeteacher', (req, res) => {
 
-    console.log("i was executed")
 
-    // const empId = req.params.empId;
-    // console.log("hello hello " + empId)
+    const empId = req.body.empId;
+
+    // const query = `SELECT shiftmate.ArrangementRequestSecondary.empId,shiftmate.loginPage.name FROM shiftmate.ArrangementRequestSecondary where shiftmate.ArrangementRequestSecondary.otherEmpId = ?
+    // join loginPage on shiftmate.ArrangementRequestSecondary.empId=shiftmate.loginPage.empId`;
+
+    const query = `SELECT shiftmate.ArrangementMainRequest.requestId, shiftmate.ArrangementRequestSecondary.id as secondaryId, shiftmate.ArrangementMainRequest.empId, shiftmate.loginPage.name, shiftmate.ArrangementMainRequest.requestDate, shiftmate.ArrangementMainRequest.forDate as date,shiftmate.ArrangementMainRequest.section,shiftmate.ArrangementMainRequest.lecture,shiftmate.ArrangementMainRequest.reason FROM shiftmate.ArrangementRequestSecondary JOIN shiftmate.loginPage 
+    ON shiftmate.ArrangementRequestSecondary.empId = shiftmate.loginPage.empId 
+        JOIN shiftmate.ArrangementMainRequest
+        ON shiftmate.ArrangementRequestSecondary.requestId = shiftmate.ArrangementMainRequest.requestId 
+        WHERE shiftmate.ArrangementRequestSecondary.otherEmpId = ? and shiftmate.ArrangementMainRequest.status ='pending'
+    `
+
+
+
 
     // const id = req.params.empId;
     // const day = 'monday';
     // const seeTimeTbl = "(select 'monday' as dday, nine, ten, eleven, twelve, one, two, three from monday where empId = ? union all select  'tuesday' as dday, nine, ten, eleven, twelve, one, two, three  from tuesday where empId = ? union all select  'wednesday' as dday, nine, ten, eleven, twelve, one, two, three  from wednesday where empId = ? union all select 'thursday' as dday, nine, ten, eleven, twelve, one, two, three  from thrusday where empId = ? union all select  'friday' as dday, nine, ten, eleven, twelve, one, two, three from friday where empId = ? union all select 'saturday' as dday, nine, ten, eleven, twelve, one, two, three from saturday where empId = ? )";
-    // db.query(seeTimeTbl, [id, id, id, id, id, id], (err, result) => {
+    db.query(query, [empId], (err, result) => {
+        if (err)
+            console.log(err);
+        else {
 
-    //     if (err)
-    //         console.log(err);
-    //     else {
-    //         res.send(result);
-    //         console.log('yyy')
-    //     }
-    // });
+            // console.log(result)
+            res.send(result)
+        }
+    });
     // console.log(seeTimeTbl);
     // console.log('h');
 
-    res.send([{
-        empID: 123,
-        name: "John Doe",
-        date: "2023-03-29",
-        reason: "Sick leave",
-        section: "4A",
-        lecture: 5,
-    }])
+
+
+
+
 })
