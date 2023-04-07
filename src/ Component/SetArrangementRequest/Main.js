@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 import Axios from 'axios';
 import RequestList from './RequestList';
 import "./Main.css";
+import AllAppliedRequest from './AllAppliedRequest';
 export default function Main(props) {
 
     console.log(JSON.stringify(props.updateUser.currentUser));
@@ -62,15 +63,21 @@ export default function Main(props) {
     // }, [third])
 
     return (
-        <div className='Main'>
+        <>
+            <div className='Main'>
 
-            <RequestList
-                requests={requests}
-                onAccept={handleAccept}
-                onReject={handleReject}
+                <RequestList
+                    requests={requests}
+                    onAccept={handleAccept}
+                    onReject={handleReject}
 
-            />
-        </div>
+                />
+
+            </div>
+
+            <AllAppliedRequest />
+        </>
+
 
     );
 }
