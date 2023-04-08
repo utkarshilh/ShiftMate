@@ -24,14 +24,8 @@ export default function Main(props) {
         }).then(
             (response) => {
 
-                // setAllRequestForHod(response.data);
-
-                console.log(response.data)
-                console.log("hello hello this dm dama dam");
-
                 setRequests(response.data)
-
-
+                console.log("this is requestId " + requests[0].requestId)
             }
         );
     }, []);
@@ -39,6 +33,19 @@ export default function Main(props) {
     function handleAccept() {
         // TODO: handle accept request with empID
         console.log("accepted was clicked")
+
+        Axios.post("http://localhost:3001/api/allarrengementrequesthandleaccept",
+            {
+                empId: props.updateUser.currentUser,
+                reqId: requests[0].requestId
+            }).then(
+                (response) => {
+                    alert(response.data);
+                    update();
+
+
+                }
+            )
 
 
 

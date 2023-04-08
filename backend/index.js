@@ -440,3 +440,41 @@ app.post('/api/getfreeteacher', (req, res) => {
 
 
 })
+
+
+app.post('/api/allarrengementrequesthandleaccept', (req, res) => {
+
+    console.log(req.body)
+
+    const empId = req.body.empId;
+    const reqId = req.body.reqId;
+    const updatedstatus = "accepted"
+
+    const query1 = "UPDATE shiftmate.ArrangementMainRequest SET otherEmpId = ?, status = ? WHERE (requestId = ?)"
+    const query2 = "DELETE FROM shiftmate.ArrangementRequestSecondary WHERE (requestId = ? );"
+
+    db.query(query1, [empId, updatedstatus, reqId], (err, result) => {
+        if (err)
+            console.log(err);
+        else {
+
+            db.query(query2, [reqId], (err, result) => {
+                if (err)
+                    console.log(err);
+                else {
+                    res.send("done");
+
+                }
+            });
+        }
+    });
+
+
+
+
+
+
+
+
+
+})
